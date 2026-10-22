@@ -1,0 +1,17 @@
+{
+  "name": "agentic-qa",
+  "description": "Agentic QA skills for Claude Code, Cursor and other AI coding agents",
+  "owner": {
+    "name": "Ritik Pal"
+  },
+  "plugins": [
+    {
+      "name": "agentic-qa",
+      "description": "Agentic STLC: from a Jira ticket, PRD or PR to reviewed, CI-proven E2E tests in 12 resumable phases",
+      "source": "./plugins/agentic-qa",
+      "version": "0.1.0",
+      "category": "testing",
+      "tags": ["qa", "testing", "e2e", "stlc", "playwright"]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "agentic-qa",
+  "description": "Agentic STLC: from a Jira ticket, PRD or PR to reviewed, CI-proven E2E tests in 12 resumable phases",
+  "version": "0.1.0",
+  "author": {
+    "name": "Ritik Pal"
+  }
+}

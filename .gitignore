@@ -1,0 +1,7 @@
+# Personal notes and interview prep (local only)
+docs/
+
+# STLC run artifacts
+.stlc/runs/
+
+.DS_Store

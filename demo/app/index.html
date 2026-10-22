@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PayLite · Send money</title>
+<style>
+  :root { --bg:#f6f7fb; --card:#fff; --text:#1c2333; --muted:#6b7385; --brand:#3b5bdb; --ok:#2f9e44; --err:#c92a2a; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.5 system-ui, sans-serif; background:var(--bg); color:var(--text); }
+  main { max-width:420px; margin:40px auto; padding:0 16px; }
+  .card { background:var(--card); border-radius:12px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  h1 { font-size:20px; margin:0; }
+  .chip { font-size:13px; background:#edf2ff; color:var(--brand); padding:4px 10px; border-radius:99px; }
+  label { display:block; font-size:14px; color:var(--muted); margin:12px 0 4px; }
+  select, input { width:100%; padding:10px; font-size:16px; border:1px solid #d0d5e0; border-radius:8px; }
+  button { width:100%; margin-top:16px; padding:12px; font-size:16px; border:0; border-radius:8px; background:var(--brand); color:#fff; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  .link { background:none; color:var(--brand); margin-top:8px; }
+  .row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #eef0f5; }
+  .total { font-weight:700; }
+  .error { color:var(--err); margin-top:12px; min-height:1.5em; }
+  .tick { font-size:40px; color:var(--ok); text-align:center; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <header>
+      <h1>Send money</h1>
+      <span class="chip" data-testid="balance">Balance ₹0.00</span>
+    </header>
+
+    <!-- Frame 1: Send form -->
+    <section id="form">
+      <label for="contact">To</label>
+      <select id="contact" data-testid="contact">
+        <option value="">Choose a contact</option>
+      </select>
+      <label for="amount">Amount (₹)</label>
+      <input id="amount" data-testid="amount" inputmode="decimal" placeholder="0.00">
+      <button id="continue" data-testid="continue" disabled>Continue</button>
+      <div class="error" role="alert" data-testid="error"></div>
+    </section>
+
+    <!-- Frame 2: Confirm -->
+    <section id="confirm" hidden>
+      <div class="row"><span>To</span><span data-testid="c-to"></span></div>
+      <div class="row"><span>Amount</span><span data-testid="c-amount"></span></div>
+      <div class="row"><span>Fee</span><span data-testid="c-fee"></span></div>
+      <div class="row total"><span>Total</span><span data-testid="c-total"></span></div>
+      <button id="send" data-testid="send">Send</button>
+      <button id="edit" class="link" data-testid="edit">Edit</button>
+    </section>
+
+    <!-- Frame 3: Success -->
+    <section id="success" hidden>
+      <div class="tick">✓</div>
+      <p style="text-align:center"><strong>Money sent</strong></p>
+      <p style="text-align:center" data-testid="ref"></p>
+      <p style="text-align:center" data-testid="new-balance"></p>
+      <button id="done" data-testid="done">Done</button>
+    </section>
+  </div>
+</main>
+
+<script>
+  // Demo wallet. Test setup via URL: ?balance=500000&sent=600000&kyc=basic&frozen=0 (all money in paise)
+  const params = new URLSearchParams(location.search);
+  const wallet = {
+    balance: Number(params.get('balance') ?? 500000),
+    sentToday: Number(params.get('sent') ?? 0),
+    kyc: params.get('kyc') ?? 'basic',
+    frozen: params.get('frozen') === '1',
+  };
+  const LIMITS = { basic: 1000000, full: 10000000 };
+  const contacts = [
+    { id: 'c_41', name: 'Aman Verma', last4: '3021' },
+    { id: 'c_42', name: 'Priya Nair', last4: '7788' },
+    { id: 'c_43', name: 'Kabir Shah', last4: '1450' },
+  ];
+  const ledger = [];
+  let pending = null;
+
+  const $ = (id) => document.getElementById(id);
+  const rupees = (p) => '₹' + (p / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  function fee(amountPaise) {
+    return Math.max(200, Math.round(amountPaise * 0.01));
+  }
+
+  function show(section) {
+    for (const s of ['form', 'confirm', 'success']) $(s).hidden = s !== section;
+  }
+
+  function render() {
+    document.querySelector('[data-testid="balance"]').textContent = 'Balance ' + rupees(wallet.balance);
+  }
+
+  for (const c of contacts) {
+    const o = document.createElement('option');
+    o.value = c.id;
+    o.textContent = `${c.name} ••${c.last4}`;
+    $('contact').appendChild(o);
+  }
+
+  function updateContinue() {
+    $('continue').disabled = !($('contact').value && $('amount').value.trim());
+  }
+  $('contact').addEventListener('change', updateContinue);
+  $('amount').addEventListener('input', updateContinue);
+
+  $('continue').addEventListener('click', () => {
+    const err = document.querySelector('[data-testid="error"]');
+    err.textContent = '';
+    const raw = $('amount').value.trim();
+    if (!/^\d+(\.\d{1,2})?$/.test(raw)) { err.textContent = 'Enter a valid amount'; return; }
+    const amount = Math.round(Number(raw) * 100);
+    if (amount < 100 || amount > 5000000) { err.textContent = 'Amount must be between ₹1 and ₹50,000'; return; }
+    if (amount > wallet.balance) { err.textContent = 'Insufficient balance'; return; }
+    if (wallet.sentToday + amount >= LIMITS[wallet.kyc]) { err.textContent = 'Daily limit exceeded'; return; }
+
+    const contact = contacts.find((c) => c.id === $('contact').value);
+    pending = { contact, amount, fee: fee(amount) };
+    document.querySelector('[data-testid="c-to"]').textContent = contact.name;
+    document.querySelector('[data-testid="c-amount"]').textContent = rupees(amount);
+    document.querySelector('[data-testid="c-fee"]').textContent = rupees(pending.fee);
+    document.querySelector('[data-testid="c-total"]').textContent = rupees(amount + pending.fee);
+    $('send').textContent = 'Send ' + rupees(amount + pending.fee);
+    show('confirm');
+  });
+
+  $('edit').addEventListener('click', () => show('form'));
+
+  $('send').addEventListener('click', () => {
+    const { contact, amount, fee } = pending;
+    // Simulated network call
+    setTimeout(() => {
+      wallet.balance -= amount + fee;
+      wallet.sentToday += amount;
+      const reference = 'PL' + Date.now().toString().slice(-8) + ledger.length;
+      ledger.push({ reference, to: contact.id, amount, fee });
+      document.querySelector('[data-testid="ref"]').textContent = 'Ref: ' + reference;
+      document.querySelector('[data-testid="new-balance"]').textContent = 'New balance ' + rupees(wallet.balance);
+      render();
+      show('success');
+    }, 400);
+  });
+
+  $('done').addEventListener('click', () => {
+    $('amount').value = '';
+    $('contact').value = '';
+    updateContinue();
+    show('form');
+  });
+
+  // Exposed for tests to inspect state
+  window.__paylite = { wallet, ledger };
+  render();
+</script>
+</body>
+</html>
