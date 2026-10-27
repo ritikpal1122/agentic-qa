@@ -20,6 +20,26 @@ when the session ends.
 
 This skill splits the work into phases, saves every phase as a file, and puts a human at the decisions that matter.
 
+## Why this and not a runtime testing agent?
+
+Runtime testing agents click through your app on every run and decide what to do as they go.
+That's flexible, but every run costs model calls and can behave differently, and they only test what you describe.
+
+This skill uses the agent **while writing tests**, not while running them:
+
+| | Runtime testing agent | agentic-qa |
+|---|---|---|
+| Starts from | A test you describe | Your **requirements**: ticket, PRD, design, RFC, PR |
+| Finds spec gaps and conflicts before code | No | **Yes**, phase 01 |
+| What runs in CI | An AI agent, every time | **Plain test code**, same result every run |
+| Cost | Per run | Once, when the test is written |
+| Where tests live | The vendor's platform | **Your repo**, reviewed like any code |
+| Traceability (requirement → test → result) | Limited | Built in |
+| Proof of quality | Varies | **Public evals** on apps with planted bugs |
+
+Use a runtime agent if you want zero setup and no test code. Use this if you want reviewed,
+deterministic tests that come from your requirements and stay in your repo.
+
 ## The 12 phases
 
 ```
@@ -135,6 +155,8 @@ evals/              answer keys for scoring runs
 - [x] Orchestrator, state format, safety rules, fintech pack, demo
 - [ ] Phases 01–05 (planning), tested on the demo
 - [ ] Phases 06–12 (build, review, CI, report)
+- [ ] **Public benchmark**: run on the demo apps, publish the score here (spec gaps found, bugs caught, false alarms)
+- [ ] **Explore mode**: `/stlc explore "<flow in plain English>"`, where the agent runs the flow live, verifies each step and locator, then writes it as plain test code
 - [ ] Second demo in another domain; e-commerce and SaaS packs
 - [ ] `domain draft`: draft a pack from a project's own docs and past bugs
 - [ ] Headless runs in CI on PR and ticket events
