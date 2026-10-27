@@ -7,7 +7,7 @@ CI-proven end-to-end tests in your own automation repo.
 Pure Markdown, no code. Works in Claude Code, and in other agents that read `SKILL.md` skills (Cursor, Codex).
 
 > **Status: early MVP, in progress.** The orchestrator, state rules, safety rules and the fintech domain pack
-> are written. Phase guides 01–05 (planning) are being built and tested one by one. Phases 06–12 come after.
+> are written. Phase 01 (context) is done and tested on the demo: see [examples/PAY-101](examples/PAY-101/01-context.md). Phases 02–05 (planning) are being built one by one. Phases 06–12 come after.
 
 ---
 
