@@ -1,9 +1,9 @@
 # 01 Context: PAY-101
-Status: draft
+Status: approved
 Inputs: run.md
 Sources: jira:PAY-101@2026-10-21T16:05, prd:demo/sources/prd/send-money.md@2026-10-18, design:demo/sources/design/send-money.md@v3-2026-10-17, rfc:demo/sources/rfc/RFC-12-transfers.md@2026-10-15, build:demo/app/index.html@mtime-2026-10-27T17:33
 Updated: 2026-10-27
-Approved-by:
+Approved-by: Ritik (2026-10-27)
 
 ## Progress
 - [x] Sources collected
@@ -106,3 +106,8 @@ Spec sources agree; the build (S-5) does something else. Expected results will f
 
 ## Out of scope
 - Sending to non-contacts, scheduled transfers, cancelling a transfer (S-2 Out of scope).
+
+## Answers (from the human, 2026-10-27)
+- Q-1: 1% with a ₹2 minimum. The ticket's 1.5% is a typo; PM will fix AC-2. (Ritik)
+- Q-6: Yes, turn on the fintech pack. (Ritik)
+- All other questions: go with the suggested defaults for now. (Ritik)

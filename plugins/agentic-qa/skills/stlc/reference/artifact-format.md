@@ -25,7 +25,7 @@ Approved-by:
 |---|---|
 | `Status` | `draft`, `approved`, `skipped` or `stale` (see below) |
 | `Inputs` | The earlier artifacts this one was built from. Used for stale tracking |
-| `Sources` | Outside sources and the version read: ticket updated time, PR head commit, doc date. Only phases that read outside sources fill this |
+| `Sources` | Outside sources and the version read: ticket updated time, PR head commit, doc date, or a content hash for local files (never a file's modified time). Only phases that read outside sources fill this |
 | `Updated` | Date of the last change |
 | `Approved-by` | Who approved it, written only when a human says yes |
 | `## Progress` | Optional checklist for long phases. Tick items as they are done, so a stopped session can continue mid-phase |

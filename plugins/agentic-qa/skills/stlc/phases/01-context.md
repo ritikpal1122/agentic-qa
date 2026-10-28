@@ -54,6 +54,9 @@ Record every source in a table, including the ones you could not open:
 | S-3 | design | figma.com/file/… | — | **no: no access** |
 
 The `Version read` values also go into the header's `Sources:` line, so later sessions can detect changes.
+Use a version that only changes when the content changes: the ticket's `updated` time, a PR's head commit,
+a doc's last-edited date. For **local files**, use a short content hash (`git hash-object <file>` or `shasum`),
+never the file's modified time, which changes on copy or checkout.
 If a source can't be opened, list it with the reason and add an open question asking for it.
 
 ## Step 3: Extract requirements
