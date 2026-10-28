@@ -1,9 +1,9 @@
 # 02 Impact: PAY-101
-Status: draft
+Status: approved
 Inputs: 01-context.md
-Sources: build:demo/app/index.html@mtime-2026-10-27T19:54
-Updated: 2026-10-27
-Approved-by:
+Sources: build:demo/app/index.html@sha256-e153f86b
+Updated: 2026-10-28
+Approved-by: Ritik (2026-10-28)
 
 ## Progress
 - [x] Evidence picked (build, no diff)
@@ -11,14 +11,14 @@ Approved-by:
 - [x] Blast radius
 - [x] Risk per requirement
 - [x] Regression areas
-- [ ] Waiting on human: two design items missing from 01 (see Notes, N-1), so not auto-approved (paused here)
+- [x] N-1 and N-4a applied to 01 (R-27, R-28 added; B-1 example fixed), approved by Ritik 2026-10-28
 
 ## Summary
 Evidence: build (confidence: **medium**). The repo has no commits and no PR, so there is no diff; the whole feature
 in `demo/app/index.html` is treated as new. It is one self-contained page (164 lines); no other product code exists
 in the repo, so the blast radius stays inside the send flow and the wallet state it mutates.
 Riskiest parts: the money rules in the Continue handler and `fee()` (4 of the 5 likely bugs from 01 live there) and
-the Send handler (no double-submit guard). 16 of 26 requirements are high risk, all because they move or price money.
+the Send handler (no double-submit guard). 16 of 28 requirements are high risk, all because they move or price money.
 
 Build version note: the file's mtime moved from 17:33 (read in 01) to 19:54, the same time as every source file, so it
 looks like a re-copy. There is no commit to compare. The content still matches every 01 observation (B-1 to B-5,
@@ -39,8 +39,8 @@ error texts in G-1, test hooks in G-7), so 01 was **not** marked stale.
 | CH-10 | Edit (L135) | Shows the form again; inputs are not cleared | R-14, G-5 |
 | CH-11 | Send handler (L137–150) | 400 ms simulated call, then debits amount + fee, adds amount to `sentToday`, pushes one ledger row, shows Ref and new balance. **Button not disabled, no idempotency key (B-5)** | R-12, R-22, R-23, R-24, R-25 |
 | CH-12 | `rupees()` (L88) | `en-IN` grouping, exactly 2 decimals | R-26 |
-| CH-13 | Balance chip `render()` (L98–100, called on load and after send) | Shows "Balance ₹x" | **none in 01**: design S-3 Frame 1 (see N-1) |
-| CH-14 | Done (L152–157) | Clears contact + amount, returns to form | **none in 01**: design S-3 Frame 3 (see N-1) |
+| CH-13 | Balance chip `render()` (L98–100, called on load and after send) | Shows "Balance ₹x" | R-27 |
+| CH-14 | Done (L152–157) | Clears contact + amount, returns to form | R-28, Q-9 |
 | CH-15 | URL setup params + `window.__paylite` (L70–77, L160) | Test setup and state inspection hooks | not a requirement (test hook, G-7; phase 06 decides) |
 
 CSS and markup-only lines skipped as formatting.
@@ -84,8 +84,10 @@ CSS and markup-only lines skipped as formatting.
 | R-24 atomic entries | high | unknown | **high** | high | Partial transfers lose money. **Not observable in this build** (see N-3) |
 | R-25 idempotency | high | high | **high** | high | Likely bug B-5: double click can debit twice |
 | R-26 2 decimals + en-IN grouping | medium | low | low | low | Cover inside other cases (e.g. a ₹1,00,000.00 balance) |
+| R-27 balance chip | medium | low | low | low | Cover inside A-1 regression case |
+| R-28 Done | low | low | low | low | Cover inside A-3 regression case; destination per Q-9 default |
 
-High: 16 · medium: 5 (R-1, R-11, R-12, R-21, R-22) · low: 5 (R-2, R-3, R-13, R-14, R-26).
+High: 16 · medium: 5 (R-1, R-11, R-12, R-21, R-22) · low: 7 (R-2, R-3, R-13, R-14, R-26, R-27, R-28).
 
 ## Regression areas
 - Balance chip updates after a send (A-1)
@@ -94,7 +96,7 @@ High: 16 · medium: 5 (R-1, R-11, R-12, R-21, R-22) · low: 5 (R-2, R-3, R-13, R
 - Edit → change amount → Continue recalculates fee/total and re-runs every check (A-4)
 
 ## Notes for test design
-- **N-1 (needs 01 update):** design S-3 has two items 01 did not list as requirements: the balance chip "Balance ₹{balance}"
+- **N-1 (applied to 01 on 2026-10-28 as R-27, R-28; Done destination moved to Q-9):** design S-3 has two items 01 did not list as requirements: the balance chip "Balance ₹{balance}"
   on the send form (Frame 1) and a "Done" button on success (Frame 3). The build implements both (CH-13, CH-14).
   Proposed: add **R-27** balance chip shows the current balance, **R-28** Done returns to an empty send form. Both would
   be low/medium risk; they mainly back the regression areas above.
@@ -105,7 +107,7 @@ High: 16 · medium: 5 (R-1, R-11, R-12, R-21, R-22) · low: 5 (R-2, R-3, R-13, R
   as not automatable at E2E in this repo. For R-25, a double click on Send and checking the debit happens once is testable.
 - **N-4 boundaries worth hitting:** amounts ₹0.99 / ₹1.00 / ₹50,000.00 / ₹50,000.01; fee switch ₹199.99 / ₹200.00 / ₹200.01;
   balance exactly amount + fee and one paisa short; basic daily total landing exactly on ₹10,000.00 and one paisa over.
-- **N-4a correction to 01 B-1's example:** ₹123.45 does not expose the rounding bug: 1% = 123.45 paise is under the
+- **N-4a correction to 01 B-1's example (applied to 01 on 2026-10-28):** ₹123.45 does not expose the rounding bug: 1% = 123.45 paise is under the
   ₹2 minimum, so spec and build both give a fee of ₹2.00. To expose B-1, the amount must be ≥ ₹200 and its 1% must have a
   fraction **below** half a paisa, e.g. **₹250.30** → 250.3 paise → spec fee ₹2.51, build fee ₹2.50. (₹250.50 would
   not work: 250.5 rounds up under both.) Suggest fixing the example in 01's B-1 when N-1 is applied.

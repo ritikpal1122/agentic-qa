@@ -55,7 +55,9 @@ PROJ-123 · profile: feature · mode: gated
 03 design       stale      ← next: 01 changed after this was approved
 04 review       —
 05 selection    —
-06–12           not in MVP yet
+06 codebase     —
+...
+12 report       —
 ```
 
 - Mark the next phase with `← next` and say why in a few words.

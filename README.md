@@ -6,8 +6,24 @@ CI-proven end-to-end tests in your own automation repo.
 
 Pure Markdown, no code. Works in Claude Code, and in other agents that read `SKILL.md` skills (Cursor, Codex).
 
-> **Status: early MVP, in progress.** The orchestrator, state rules, safety rules and the fintech domain pack
-> are written. Phase 01 (context) is done and tested on the demo: see [examples/PAY-101](examples/PAY-101/01-context.md). Phases 02–05 (planning) are being built one by one. Phases 06–12 come after.
+> **Status: v0.1, all 12 phases work end to end on the demo.** See the full run in [examples/PAY-101](examples/PAY-101)
+> and the score in [evals/send-money/results.md](evals/send-money/results.md). Tested so far on one demo app, with Claude Code.
+
+## Results on the demo
+
+One full run on PayLite, a small payments app with planted spec problems and five planted bugs:
+
+| | Result |
+|---|---|
+| Spec issues found before any test (conflicts, gaps) | **7 / 7** |
+| Prompt injection hidden in a ticket comment | Quoted and refused |
+| Requirements found | 28, of which **21 were not in the ticket's acceptance criteria** |
+| Test cases designed → automated | 45 → 58 Playwright tests, in the repo's own conventions |
+| Planted bugs caught by the generated tests | **5 / 5**, with 0 false alarms |
+| Same tests on the app with the bugs fixed | **59 / 59 pass** |
+| Stability | 3 runs, same result every time |
+
+Cost: about $13 of model usage and 45 minutes of agent time for the whole run. The generated tests then run in CI for free.
 
 ---
 
@@ -132,10 +148,17 @@ For Jira, Figma and browser access, connect the matching MCP servers in your age
 
 ## Try the demo
 
-`demo/` has a small payments app (**PayLite**, open `demo/app/index.html`) and its sources:
-a Jira-style story, PRD, design notes and an RFC. They contain planted conflicts, gaps, a prompt-injection
-comment and five app bugs. `evals/send-money/answer-key.md` lists them, so you can score a run.
-Don't give the answer key to the agent.
+`demo/` has a small payments app (**PayLite**, open `demo/app/index.html`), its sources
+(a Jira-style story, PRD, design notes and an RFC) and a Playwright automation repo (`demo/e2e`).
+The sources contain planted conflicts, gaps, a prompt-injection comment, and the app has five bugs.
+`evals/send-money/answer-key.md` lists them, so you can score a run. Don't give the answer key to the agent.
+
+```
+cd demo/e2e && npm ci && npx playwright install chromium
+cd ../.. && claude            # then: /stlc start demo/sources/jira/PAY-101.md
+```
+
+The `demo-e2e` GitHub workflow runs the demo's smoke tests on every change to `demo/`.
 
 ## Repo layout
 
@@ -143,19 +166,22 @@ Don't give the answer key to the agent.
 plugins/agentic-qa/skills/stlc/
 ├── SKILL.md        orchestrator: commands, state, modes, rules
 ├── phases/         one guide per phase
-├── reference/      artifact format, modes and profiles, safety
+├── reference/      artifact format, modes and profiles, safety, test-code rules
 ├── domains/        domain packs
 └── templates/      run.md template
-demo/               sample app and sources
-evals/              answer keys for scoring runs
+demo/               sample app, its sources, and a Playwright automation repo
+examples/           a full run, phases 01–12, with the generated tests
+evals/              answer keys and benchmark results
 ```
 
 ## Roadmap
 
 - [x] Orchestrator, state format, safety rules, fintech pack, demo
-- [ ] Phases 01–05 (planning), tested on the demo
-- [ ] Phases 06–12 (build, review, CI, report)
-- [ ] **Public benchmark**: run on the demo apps, publish the score here (spec gaps found, bugs caught, false alarms)
+- [x] Phases 01–05 (planning), tested on the demo
+- [x] Phases 06–12 (build, review, run, report), tested on the demo
+- [x] **Public benchmark** for the first demo ([results](evals/send-money/results.md))
+- [ ] Bug and task profiles tested on their own demos
+- [ ] Run in Cursor and Codex, and record the results
 - [ ] **Explore mode**: `/stlc explore "<flow in plain English>"`, where the agent runs the flow live, verifies each step and locator, then writes it as plain test code
 - [ ] Second demo in another domain; e-commerce and SaaS packs
 - [ ] `domain draft`: draft a pack from a project's own docs and past bugs
