@@ -200,3 +200,7 @@ evals/team-invites/ answer key, fixed app, planted bugs, results
 - [ ] More optional domain packs (`fintech` exists; e-commerce, healthcare)
 - [ ] `domain draft`: draft a pack from a project's own docs and past bugs
 - [ ] Headless runs in CI on PR and ticket events
+
+## License
+
+[MIT](LICENSE)
