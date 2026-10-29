@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       grep:
-        description: 'Only run tests matching this tag, e.g. @PAY-101'
+        description: 'Only run tests matching this tag, e.g. @TEAM-42'
         required: false
         default: '@smoke'
 
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: demo/e2e
+        working-directory: demo/teamhub/e2e
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,5 +32,5 @@ jobs:
         if: always()
         with:
           name: playwright-results
-          path: demo/e2e/test-results
+          path: demo/teamhub/e2e/test-results
           retention-days: 7

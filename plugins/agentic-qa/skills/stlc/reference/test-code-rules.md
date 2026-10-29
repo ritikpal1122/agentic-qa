@@ -13,7 +13,7 @@ Used by phase 09 (writing) and phase 10 (review). The project profile wins where
 5. **Never weaken an assertion to make a test pass.** If the product disagrees with the expected result, the
    test stays red and the failure is triaged.
 6. **Calculated expectations come from the case's working**, written as constants with a comment
-   (`// fee = max(200, ceil(25030 * 1%)) = 251 paise`), not recomputed with the product's formula.
+   (`// expires = sent 10:00:00 + 30 min = 10:30:00; now 10:30:01 → expired`), not recomputed with the product's formula.
 
 ## Locators
 
@@ -25,7 +25,7 @@ Used by phase 09 (writing) and phase 10 (review). The project profile wins where
 
 1. Web-first assertions and auto-waiting. Never fixed sleeps (`waitForTimeout`, `sleep`).
 2. Wait for a state ("success screen visible"), not for time.
-   **Proving something did not happen** (no second debit, no send on a frozen wallet): first wait for the moment it
+   **Proving something did not happen** (no second email, no save on a locked account): first wait for the moment it
    would have happened (the response arrives, the success screen shows, the button re-enables). Only if the app gives
    no such signal, use one short bounded wait in a named helper with a comment saying why, never a bare sleep in a test.
 3. Each test sets up its own data through the project's fixtures. No test depends on another test or on order.
@@ -33,7 +33,7 @@ Used by phase 09 (writing) and phase 10 (review). The project profile wins where
 
 ## Structure
 
-1. Test title starts with the case ID and carries the tags: `TC-7: balance must cover amount + fee @PAY-101`.
+1. Test title starts with the case ID and carries the tags: `TC-7: expired reset link is rejected @AUTH-31`.
 2. Steps in the test follow the case's steps, in the same order, so a reviewer can read them side by side.
 3. Page objects hold locators and actions only. Assertions live in tests.
 4. No secrets in code. Credentials come from the environment or the project's config.

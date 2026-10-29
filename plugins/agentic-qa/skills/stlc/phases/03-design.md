@@ -37,18 +37,17 @@ Progress list for this phase: one item per group of requirements, so a stopped s
 ## Step 2: Write each case
 
 ```markdown
-### TC-7 Balance must cover amount + fee (boundary, just short)
-Covers: R-15 · Risk: high · Type: negative · Targets: B-2
-Setup: balance ₹102.00, KYC basic, sent today ₹0
+### TC-7 Reset link used one second after it expires (boundary, just past)
+Covers: R-2 · Risk: high · Type: boundary · Targets: B-2
+Setup: user asha@example.com, reset link sent at 10:00:00, clock set to 10:30:01
 Steps:
-1. Pick contact "Priya Nair"
-2. Enter amount 100.01
-3. Press Continue
+1. Open the reset link from the email
+2. Enter new password "N3w-passw0rd!" in both fields
+3. Press Save
 Expected:
-- Error "Insufficient balance" is shown
-- Confirm screen does not open
-- Balance still ₹102.00
-Working: fee = max(₹2.00, 1% of ₹100.01 = ₹1.0001 → rounded up ₹1.01) = ₹2.00; total ₹102.01 > ₹102.00
+- Message "This link has expired" is shown
+- Password is not changed: signing in with the old password still works
+Working: expires at 10:00:00 + 30 min = 10:30:00; 10:30:01 is after that → expired
 ```
 
 Rules:
@@ -68,7 +67,7 @@ Fill the coverage table, then fix what it shows:
 
 | Req | Risk | Cases | Techniques | Gap? |
 |---|---|---|---|---|
-| R-15 | high | TC-6, TC-7, TC-8 | boundary, negative | — |
+| R-2 | high | TC-6, TC-7, TC-8 | boundary, negative | — |
 
 - Every requirement has at least one case, or a written reason why not (for example "not testable from the UI").
 - Every high-risk requirement has a boundary or negative case, not only the happy path.
@@ -100,7 +99,7 @@ Approved-by:
 <counts by type, bugs targeted, what's not covered>
 
 ## Test data
-<shared setup: users, balances, accounts, how to reach each state>
+<shared setup: users, accounts, data, how to reach each state>
 
 ## Cases
 ### TC-1 <title>

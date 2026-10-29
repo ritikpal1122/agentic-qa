@@ -13,7 +13,7 @@ One row per requirement, from source to result:
 
 | Req | Source | Risk | Cases | Test | Result |
 |---|---|---|---|---|---|
-| R-15 | PRD §4 | high | TC-7, TC-8 | send-money.spec.ts | ❌ fails: BUG-DRAFT-1 |
+| R-2 | PRD §3 | high | TC-7, TC-8 | reset.spec.ts | ❌ fails: BUG-DRAFT-1 |
 | R-26 | design | low | TC-25 | manual | — not automated |
 
 Every requirement appears, including those not covered, with the reason.

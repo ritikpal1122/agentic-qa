@@ -15,7 +15,7 @@ Start only when `03-design.md` and `04-review.md` are `approved`.
 | Level | Choose when |
 |---|---|
 | **E2E** | A user journey across screens; what the user sees matters; a high-risk flow end to end |
-| **API** | Rules and calculations that don't need the UI (validation, limits, fee maths); many data variations |
+| **API** | Rules and calculations that don't need the UI (validation, limits, calculations); many data variations |
 | **Unit** | Pure logic inside one function. Suggest it to developers; this skill doesn't write unit tests |
 | **Manual** | Visual or exploratory checks, one-off checks, or states too costly to set up automatically |
 | **Skip** | Duplicates, or covered fully by another case |
@@ -24,8 +24,8 @@ Score each case on:
 - **Value:** risk from `02-impact.md`, and how often it will run (every release? every PR?).
 - **Stability:** can it be made deterministic? Avoid E2E for animations, third-party pages, real time or randomness.
 - **Cost:** setup needed (special accounts, data, states), and how long it runs.
-- **Level fit:** the cheapest level that can still catch the bug. Don't test 20 fee amounts through the UI:
-  keep one or two E2E cases to prove the UI shows the right fee, and push the rest to API.
+- **Level fit:** the cheapest level that can still catch the bug. Don't test 20 password rules through the UI:
+  keep one or two E2E cases to prove the UI shows the error, and push the rest to API.
 
 If the app has no API the tests can reach, say so and keep those cases at E2E (or manual), with the reason.
 
@@ -34,9 +34,9 @@ If the app has no API the tests can reach, say so and keep those cases at E2E (o
 ```markdown
 | Case | Title | Risk | Proposed | Why |
 |---|---|---|---|---|
-| TC-7 | Balance must cover amount + fee | high | E2E | Money moves; user-visible error; no API in the demo |
-| TC-19 | Fee for 12 amounts | medium | API | Data-heavy; UI adds nothing |
-| TC-25 | Indian digit grouping on confirm | low | Manual | Visual; checked once per release |
+| TC-7 | Reset link one second after expiry | high | E2E | Security; user-visible error; no API in this app |
+| TC-19 | Password rules for 12 inputs | medium | API | Data-heavy; UI adds nothing |
+| TC-25 | Reset email layout | low | Manual | Visual; checked once per release |
 ```
 
 Then a short summary: how many E2E, API, manual, skipped, and a suggested **smoke set** (the 3–5 E2E cases

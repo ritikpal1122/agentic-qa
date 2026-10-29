@@ -1,0 +1,6 @@
+{
+  "_comment": "Scripted human for eval runs. The answers are given only after phase 01 stops, so they never hint at what phase 01 should find.",
+  "start": "/stlc start demo/teamhub/sources/jira/TEAM-42.md",
+  "answers_01": "- The Free plan seat limit is 3 people, as in the PRD. The ticket's 5 is outdated; PM will fix it.\n- All other questions: go with the suggested defaults.",
+  "resume": "/stlc resume. My answers, given up front for this whole run: approve 02 as you write it unless it changes phase 01. Approve 03 and 04 when the review has no open blockers; for anything marked 'needs human', use your suggested default. For 05, accept your proposal as is. Approve the project profile in 06 as written. At 08 my answer is go. Then build, review, run and report. Do not push and do not send anything outside the repo: drafts only."
+}

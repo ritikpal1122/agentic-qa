@@ -31,7 +31,7 @@ For each changed function, component, API or data field, search the product code
 - other screens or flows using the same component, endpoint, table or config value
 - shared things: auth, money or date helpers, feature flags, validation, error handling
 
-List each affected area as a **user-facing flow** ("Wallet balance on the home screen"), not as a file,
+List each affected area as a **user-facing flow** ("Sign-in on the login page"), not as a file,
 because that is what tests will cover. Note how you know (`used by home.ts:42`).
 
 Stop at 2 levels of callers. If an area is beyond that or you aren't sure, list it as `possible` with the reason.
@@ -95,12 +95,12 @@ Evidence: <diff | build | docs only> (confidence: <high | medium | low>)
 ## Changes
 | ID | Where | What changed | Serves |
 |---|---|---|---|
-| CH-1 | `fee()` in app/index.html | New fee calculation | R-6, R-7 |
+| CH-1 | `sendResetLink()` in auth/reset.ts | New token with an expiry time | R-2, R-3 |
 
 ## Blast radius
 | ID | Flow affected | Why | How we know | Sure? |
 |---|---|---|---|---|
-| A-1 | Wallet balance shown everywhere | Send now changes the balance | `render()` reads wallet.balance | yes |
+| A-1 | Sign-in for every user | Reset changes the stored password | `login()` reads users.password_hash | yes |
 
 ## Risk by requirement
 | Req | Impact | Likelihood | Risk | Depth | Reason (for high) |

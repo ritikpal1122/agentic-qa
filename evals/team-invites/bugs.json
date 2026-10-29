@@ -1,0 +1,55 @@
+{
+  "_comment": "Each planted bug as [fixed snippet, buggy snippet] pairs. Applying all of them to fixed-app.html gives demo/teamhub/app/index.html exactly.",
+  "bugs": {
+    "B-1": [
+      [
+        "    if (seatsUsed() >= seatLimit()) {",
+        "    if (workspace.members.length >= seatLimit()) {"
+      ]
+    ],
+    "B-2": [
+      [
+        "    const email = raw.trim().toLowerCase();",
+        "    const email = raw.trim();"
+      ]
+    ],
+    "B-3": [
+      [
+        "    if (now - invite.sentAt >= SEVEN_DAYS_MS)",
+        "    if (now - invite.sentAt > SEVEN_DAYS_MS)"
+      ]
+    ],
+    "B-4": [
+      [
+        "  function sendInvite(raw) {\n    if (role === 'member') return { error: 'Only owners and admins can invite' };\n",
+        "  function sendInvite(raw) {\n"
+      ],
+      [
+        "  function revoke(email) {\n    if (role === 'member') return;\n",
+        "  function revoke(email) {\n"
+      ],
+      [
+        "      ${role === 'member' ? '' : `<h2>Invite by email</h2>",
+        "      <h2>Invite by email</h2>"
+      ],
+      [
+        "      </form>`}\n      ${messageHtml()}`;\n  }\n\n  function renderAccept",
+        "      </form>\n      ${messageHtml()}`;\n  }\n\n  function renderAccept"
+      ],
+      [
+        "${role === 'member' ? '' : `<button class=\"link\" data-testid=\"revoke\" data-email=\"${p.email}\">Revoke</button>`}",
+        "<button class=\"link\" data-testid=\"revoke\" data-email=\"${p.email}\">Revoke</button>"
+      ]
+    ],
+    "B-5": [
+      [
+        "    if (!invite) return { error: 'This invite is no longer valid' };\n    if (workspace.members.some((m) => m.email === invite.email)) return { notice: `You joined ${workspace.name}` };\n",
+        "    if (!invite) return { error: 'This invite is no longer valid' };\n"
+      ],
+      [
+        "      join.addEventListener('click', async () => {\n        join.disabled = true;\n",
+        "      join.addEventListener('click', async () => {\n"
+      ]
+    ]
+  }
+}

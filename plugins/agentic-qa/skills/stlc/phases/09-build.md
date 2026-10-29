@@ -57,8 +57,8 @@ Updated: <date>
 Approved-by:
 
 ## Progress
-- [x] pages/SendMoneyPage.ts
-- [ ] tests/send-money/send-money.spec.ts
+- [x] pages/ResetPasswordPage.ts
+- [ ] tests/password-reset/reset.spec.ts
 
 ## Branch
 test/<RUN-ID>-<name> (from <base> @ <sha>)
@@ -74,7 +74,7 @@ test/<RUN-ID>-<name> (from <base> @ <sha>)
 ## First run
 | Case | Result | Why |
 |---|---|---|
-| TC-7 | fail (expected) | product allows send: B-2 |
+| TC-7 | fail (expected) | product accepts an expired link: B-2 |
 
 ## Not automated
 - <case>: <reason>

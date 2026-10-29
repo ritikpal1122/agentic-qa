@@ -5,3 +5,5 @@ docs/
 .stlc/runs/
 
 .DS_Store
+evals/results/
+__pycache__/

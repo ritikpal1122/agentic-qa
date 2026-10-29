@@ -34,20 +34,20 @@ Never change the behaviour of an existing helper other tests rely on. If one is 
 ## Files
 | Action | File | What | Used by |
 |---|---|---|---|
-| create | pages/SendMoneyPage.ts | Form, confirm, success screens; actions: chooseContact, enterAmount, continue, send | TC-1..TC-20 |
-| extend | fixtures/wallet.ts | (none needed) | |
-| create | tests/send-money/send-money.spec.ts | TC-1..TC-20, tagged @PAY-101 | |
+| create | pages/ResetPasswordPage.ts | Request form, new-password form; actions: requestLink, setPassword | TC-1..TC-12 |
+| extend | fixtures/auth.ts | add option `resetSentAt` | TC-6..TC-8 |
+| create | tests/password-reset/reset.spec.ts | TC-1..TC-12, tagged @AUTH-31 | |
 
 ## Case map
 | Case | Level | Status | Test file | Building blocks |
 |---|---|---|---|---|
-| TC-7 | E2E | new | tests/send-money/send-money.spec.ts | openWallet, SendMoneyPage, walletState |
+| TC-7 | E2E | new | tests/password-reset/reset.spec.ts | signInAs, ResetPasswordPage, clock |
 | TC-3 | E2E | covered by tests/smoke/app-loads.spec.ts | — | — |
 
 ## Locators needed
 | Page object | Element | Planned locator | Verified? |
 |---|---|---|---|
-| SendMoneyPage | Amount input | getByTestId('amount') | not yet (09) |
+| ResetPasswordPage | New password input | getByLabel('New password') | not yet (09) |
 
 ## Regression run
 - <command or grep that runs the regression areas>

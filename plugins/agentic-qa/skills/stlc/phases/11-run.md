@@ -46,8 +46,8 @@ A green test proves nothing until it has failed when it should.
   folder that is deleted afterwards, never committed):
   - If the product code is reachable: make the smallest change that breaks the rule the test guards
     (flip a comparison, change a constant, skip a check). The test must fail.
-  - If it isn't: change the test's **input** so the expected result no longer holds (one paisa over, a different
-    account state). The test must fail.
+  - If it isn't: change the test's **input** so the expected result no longer holds (one second past a limit, a
+    different account state). The test must fail.
   Record what was changed and the result. A test that still passes is weak: back to 09.
 - Tests that already fail because of a product bug have proven they can fail. Skip them here.
 
@@ -56,11 +56,11 @@ A green test proves nothing until it has failed when it should.
 For every product-bug failure, write a draft in the artifact. **Never create it in the tracker without a yes.**
 
 ```markdown
-### BUG-DRAFT-1: Send allowed when balance covers the amount but not the fee
-Severity: high (money) · Found by: TC-7 · Requirement: R-15 (PRD §4)
+### BUG-DRAFT-1: Expired reset link still changes the password
+Severity: high (security) · Found by: TC-7 · Requirement: R-2 (PRD §3)
 Steps: <from the case>
-Expected: "Insufficient balance"; balance unchanged
-Actual: confirm screen opens; after Send, balance is -₹1.01
+Expected: "This link has expired"; old password still works
+Actual: password is changed; old password is rejected
 Evidence: <screenshot/trace path>, run <id>
 ```
 

@@ -1,0 +1,26 @@
+diff --git a/demo/teamhub/e2e/fixtures/workspace.ts b/demo/teamhub/e2e/fixtures/workspace.ts
+index a1daa9c..e1646bd 100644
+--- a/demo/teamhub/e2e/fixtures/workspace.ts
++++ b/demo/teamhub/e2e/fixtures/workspace.ts
+@@ -60,5 +60,21 @@ export async function workspaceState(page: Page): Promise<WorkspaceState> {
+   });
+ }
+ 
++/** Emails of the pending invites, in the order the app stores them. */
++export async function pendingEmails(page: Page): Promise<string[]> {
++  return (await workspaceState(page)).pending.map((p) => p.email);
++}
++
++/**
++ * Installs a paused browser clock. Call before `openWorkspace`/`openInvite`.
++ * The app's 400 ms server delay then only completes when the test calls `page.clock.runFor(ms)`,
++ * so repeat actions (double clicks) land before any response, and checks run after every response.
++ */
++export async function pauseClock(page: Page): Promise<void> {
++  const start = new Date('2026-10-28T10:00:00Z');
++  await page.clock.install({ time: start });
++  await page.clock.pauseAt(start);
++}
++
+ export const test = base;
+ export { expect } from '@playwright/test';

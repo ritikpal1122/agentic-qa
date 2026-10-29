@@ -6,24 +6,29 @@ CI-proven end-to-end tests in your own automation repo.
 
 Pure Markdown, no code. Works in Claude Code, and in other agents that read `SKILL.md` skills (Cursor, Codex).
 
-> **Status: v0.1, all 12 phases work end to end on the demo.** See the full run in [examples/PAY-101](examples/PAY-101)
-> and the score in [evals/send-money/results.md](evals/send-money/results.md). Tested so far on one demo app, with Claude Code.
+> **Status: v0.1, all 12 phases work end to end on the demo.** See the full run in [examples/TEAM-42](examples/TEAM-42)
+> and the scores in [evals/team-invites/results.md](evals/team-invites/results.md). Tested so far on one demo app,
+> with Claude Code. Domain-agnostic: the demo runs with no domain pack.
 
 ## Results on the demo
 
-One full run on PayLite, a small payments app with planted spec problems and five planted bugs:
+One full run on TeamHub, a small team-workspace app (invites, seat limits, roles) with planted spec problems and five
+planted bugs. Scored by an [eval harness](evals/harness), not by hand:
 
 | | Result |
 |---|---|
-| Spec issues found before any test (conflicts, gaps) | **7 / 7** |
+| Spec issues found before any test (conflicts, gaps) | **6 / 7** (LLM judge, evidence quoted) |
 | Prompt injection hidden in a ticket comment | Quoted and refused |
-| Requirements found | 28, of which **21 were not in the ticket's acceptance criteria** |
-| Test cases designed → automated | 45 → 58 Playwright tests, in the repo's own conventions |
-| Planted bugs caught by the generated tests | **5 / 5**, with 0 false alarms |
-| Same tests on the app with the bugs fixed | **59 / 59 pass** |
+| Requirements found | 28, most of them from the PRD and RFC, not the ticket's acceptance criteria |
+| Test cases designed → automated | 37 → 45 Playwright tests, in the repo's own conventions |
+| Planted bugs caught | **5 / 5**, each on its own single-bug version of the app |
+| Same tests on the app with the bugs fixed | **46 / 46 pass**: 0 false alarms |
 | Stability | 3 runs, same result every time |
 
-Cost: about $13 of model usage and 45 minutes of agent time for the whole run. The generated tests then run in CI for free.
+Phase 01 by model, 3 runs each: Opus 6.2 / 7, Sonnet 5.8, Haiku 6.0, all refusing the injection every time.
+Haiku costs about $0.02 a run against Opus's $0.54 ([details](evals/team-invites/results.md)).
+
+Cost of the full run: $17 of model usage and about 28 minutes of agent time. The generated tests then run in CI for free.
 
 ---
 
@@ -140,7 +145,7 @@ For Jira, Figma and browser access, connect the matching MCP servers in your age
 /stlc start PROJ-123                       # from a Jira ticket
 /stlc start https://github.com/org/repo/pull/42
 /stlc start docs/prd/checkout.md           # from a PRD alone
-/stlc start PROJ-123 --profile bug --mode step --domain fintech
+/stlc start PROJ-123 --profile bug --mode step --domain <pack>
 /stlc status                               # show the status board
 /stlc resume                               # continue where you left off
 /stlc goto 03 | skip 06 <reason> | approve 03
@@ -148,14 +153,21 @@ For Jira, Figma and browser access, connect the matching MCP servers in your age
 
 ## Try the demo
 
-`demo/` has a small payments app (**PayLite**, open `demo/app/index.html`), its sources
-(a Jira-style story, PRD, design notes and an RFC) and a Playwright automation repo (`demo/e2e`).
-The sources contain planted conflicts, gaps, a prompt-injection comment, and the app has five bugs.
-`evals/send-money/answer-key.md` lists them, so you can score a run. Don't give the answer key to the agent.
+`demo/teamhub/` has a small team-workspace app (**TeamHub**, open `demo/teamhub/app/index.html`), its sources
+(a Jira-style story, PRD, design notes and an RFC) and a Playwright automation repo (`demo/teamhub/e2e`).
+The sources contain a planted conflict, gaps and a prompt-injection comment, and the app has five bugs.
+`evals/team-invites/answer-key.md` lists them, so you can score a run. Don't give the answer key to the agent.
 
 ```
-cd demo/e2e && npm ci && npx playwright install chromium
-cd ../.. && claude            # then: /stlc start demo/sources/jira/PAY-101.md
+cd demo/teamhub/e2e && npm ci && npx playwright install chromium
+cd ../../.. && claude          # then: /stlc start demo/teamhub/sources/jira/TEAM-42.md
+```
+
+Or score it automatically, across models and runs:
+
+```
+python3 evals/harness/run_eval.py --models opus,sonnet,haiku --runs 3 --stage plan   # phase 01, about $1 a run
+python3 evals/harness/run_eval.py --models sonnet --runs 1 --stage full              # phases 01-12
 ```
 
 The `demo-e2e` GitHub workflow runs the demo's smoke tests on every change to `demo/`.
@@ -169,20 +181,22 @@ plugins/agentic-qa/skills/stlc/
 ├── reference/      artifact format, modes and profiles, safety, test-code rules
 ├── domains/        domain packs
 └── templates/      run.md template
-demo/               sample app, its sources, and a Playwright automation repo
-examples/           a full run, phases 01–12, with the generated tests
-evals/              answer keys and benchmark results
+demo/teamhub/       sample app, its sources, and a Playwright automation repo
+examples/TEAM-42/   a full run, phases 01–12, with the generated tests
+evals/harness/      runs the skill headless and scores it: models, repeats, cost
+evals/team-invites/ answer key, fixed app, planted bugs, results
 ```
 
 ## Roadmap
 
-- [x] Orchestrator, state format, safety rules, fintech pack, demo
-- [x] Phases 01–05 (planning), tested on the demo
-- [x] Phases 06–12 (build, review, run, report), tested on the demo
-- [x] **Public benchmark** for the first demo ([results](evals/send-money/results.md))
+- [x] Orchestrator, state format, safety rules, demo
+- [x] Phases 01–12, tested end to end on the demo
+- [x] **Eval harness**: headless runs, deterministic bug scoring, model comparison ([results](evals/team-invites/results.md))
+- [ ] Full runs on Sonnet and Haiku, and 3+ full runs per model
+- [ ] A blind demo, with bugs planted by someone outside the project
 - [ ] Bug and task profiles tested on their own demos
 - [ ] Run in Cursor and Codex, and record the results
 - [ ] **Explore mode**: `/stlc explore "<flow in plain English>"`, where the agent runs the flow live, verifies each step and locator, then writes it as plain test code
-- [ ] Second demo in another domain; e-commerce and SaaS packs
+- [ ] More optional domain packs (`fintech` exists; e-commerce, healthcare)
 - [ ] `domain draft`: draft a pack from a project's own docs and past bugs
 - [ ] Headless runs in CI on PR and ticket events

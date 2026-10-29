@@ -54,10 +54,10 @@ Approved-by:
 | Tags | In title: @smoke, @regression, @<TICKET> | README, existing tests |
 | Locators | getByTestId first, then getByRole; no CSS/XPath | README |
 | Page objects | pages/, extend BasePage, getters + action methods, no assertions | README, pages/BasePage.ts |
-| Fixtures and setup | openWallet(page, {...}) | fixtures/wallet.ts |
+| Fixtures and setup | signInAs(page, user) | fixtures/auth.ts |
 | Test data | ... | |
 | Auth | ... | |
-| Assertions | web-first expect; check stored state after money moves | README |
+| Assertions | web-first expect; check stored state after a save | README |
 | Waiting | never waitForTimeout | README |
 | Run locally | npm test; one ticket: npx playwright test --grep @<TICKET> | package.json, README |
 | Run in CI | <workflow file, trigger, command> or "none found" | .github/workflows/... |

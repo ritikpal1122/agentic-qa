@@ -32,7 +32,7 @@ For the `bug` profile, run only the devil's advocate.
 
 | ID | Persona | Case or Req | Finding | Severity | Fix |
 |---|---|---|---|---|---|
-| F-1 | Devil's advocate | TC-4 | Expected fee ₹1.24 ignores the ₹2 minimum; real expected is ₹2.00 | **blocker** | Correct the expected result and working |
+| F-1 | Devil's advocate | TC-4 | Expected expiry 11:00 uses the ticket's 60 min, but the answer to Q-1 is 30 min; real expected is 10:30 | **blocker** | Correct the expected result and working |
 
 Severity:
 - **blocker:** the case would pass on a broken product, has a wrong expected result, or a high-risk requirement has no real coverage

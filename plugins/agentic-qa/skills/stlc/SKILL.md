@@ -29,7 +29,7 @@ Inputs for `start` can be combined: `start PROJ-123`, `start https://github.com/
 
 ```
 <host repo>/.stlc/
-├── config.md                 optional team settings, e.g. `Domains: fintech`, default mode
+├── config.md                 optional team settings, e.g. `Domains: <pack>`, default mode
 ├── project-profile.md        learned once per repo in phase 06, reused by every run
 └── runs/<RUN-ID>/            one folder per run; RUN-ID = ticket key, else pr-<n>, else file name
     ├── run.md                inputs, profile, mode, started date

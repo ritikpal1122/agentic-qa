@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TeamHub</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #f4f5f7; margin: 0; padding: 24px; color: #1d2433; }
+  .card { background: #fff; max-width: 520px; margin: 0 auto; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #e3e6ea; padding-bottom: 12px; }
+  h1 { font-size: 20px; margin: 0; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: #5b6475; margin: 20px 0 8px; }
+  ul { list-style: none; padding: 0; margin: 0; }
+  li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f1f3; }
+  .muted { color: #8a93a3; }
+  form { display: flex; gap: 8px; margin-top: 8px; }
+  input { flex: 1; padding: 8px 10px; border: 1px solid #c9ced6; border-radius: 6px; font-size: 14px; }
+  button { padding: 8px 14px; border: 0; border-radius: 6px; background: #3b5bdb; color: #fff; font-size: 14px; cursor: pointer; }
+  button.link { background: none; color: #c92a2a; padding: 0; }
+  button:disabled { opacity: .5; cursor: default; }
+  .error { color: #c92a2a; margin-top: 10px; }
+  .notice { color: #2b8a3e; margin-top: 10px; }
+  .center { text-align: center; }
+</style>
+</head>
+<body>
+<div class="card" id="root"></div>
+
+<script>
+  // Demo build of TEAM-42. Rules from RFC-7 run in the browser; calls are delayed 400 ms like a server.
+  // Test setup through URL params:
+  //   view=members|accept  plan=free|pro  role=owner|admin|member (signed-in user on the members view)
+  //   members=a@x.test,b@x.test:admin  (people besides the owner)  pending=c@x.test,...  (sent just now)
+  //   accept view: invite=<email> age=<seconds since the invite was sent>
+  const params = new URLSearchParams(location.search);
+  const SEAT_LIMITS = { free: 3, pro: 10 };
+  const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+  const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  const now = Date.now(); // the demo clock is frozen at page load, so tests can hit exact times
+
+  const workspace = {
+    name: 'Acme',
+    plan: params.get('plan') === 'pro' ? 'pro' : 'free',
+    members: [{ email: 'owner@acme.test', role: 'owner' }],
+    pending: [],
+  };
+  for (const item of (params.get('members') || '').split(',').filter(Boolean)) {
+    const [email, role] = item.split(':');
+    workspace.members.push({ email, role: role || 'member' });
+  }
+  for (const email of (params.get('pending') || '').split(',').filter(Boolean)) {
+    workspace.pending.push({ email, sentAt: now });
+  }
+  const view = params.get('view') === 'accept' ? 'accept' : 'members';
+  const role = params.get('role') || 'owner';
+  if (view === 'accept' && params.get('invite')) {
+    const age = Number(params.get('age') || 0) * 1000;
+    workspace.pending.push({ email: params.get('invite'), sentAt: now - age });
+  }
+  window.__teamhub = { workspace };
+
+  const ui = { message: null };
+  const fakeServer = (fn) => new Promise((resolve) => setTimeout(() => resolve(fn()), 400));
+  const seatLimit = () => SEAT_LIMITS[workspace.plan];
+  const seatsUsed = () => workspace.members.length + workspace.pending.length;
+  const label = (r) => r[0].toUpperCase() + r.slice(1);
+
+  function sendInvite(raw) {
+    const email = raw.trim();
+    if (!EMAIL_RE.test(email)) return { error: 'Enter a valid email address' };
+    if (workspace.members.some((m) => m.email === email)) return { error: 'Already a member' };
+    if (workspace.pending.some((p) => p.email === email)) return { error: 'Already invited' };
+    if (workspace.members.length >= seatLimit()) {
+      return { error: 'Seat limit reached. Upgrade to Pro to add more people.' };
+    }
+    workspace.pending.push({ email, sentAt: now });
+    return { notice: `Invite sent to ${email}` };
+  }
+
+  function revoke(email) {
+    workspace.pending = workspace.pending.filter((p) => p.email !== email);
+    ui.message = null;
+    render();
+  }
+
+  function accept(invite) {
+    if (!invite) return { error: 'This invite is no longer valid' };
+    if (now - invite.sentAt > SEVEN_DAYS_MS) return { error: 'This invite has expired' };
+    workspace.members.push({ email: invite.email, role: 'member' });
+    workspace.pending = workspace.pending.filter((p) => p.email !== invite.email);
+    return { notice: `You joined ${workspace.name}` };
+  }
+
+  function messageHtml() {
+    if (!ui.message) return '';
+    if (ui.message.error) return `<p class="error" data-testid="error" role="alert">${ui.message.error}</p>`;
+    return `<p class="notice" data-testid="notice" role="status">${ui.message.notice}</p>`;
+  }
+
+  function renderMembers() {
+    const planName = workspace.plan === 'pro' ? 'Pro plan' : 'Free plan';
+    const members = workspace.members
+      .map((m) => `<li data-testid="member-row"><span>${m.email}</span><span class="muted">${label(m.role)}</span></li>`)
+      .join('');
+    const pending = workspace.pending.length
+      ? workspace.pending
+          .map((p) => `<li data-testid="pending-row"><span>${p.email}</span>
+             <button class="link" data-testid="revoke" data-email="${p.email}">Revoke</button></li>`)
+          .join('')
+      : '<li class="muted" data-testid="pending-empty">(none)</li>';
+    return `
+      <header>
+        <h1>${workspace.name}</h1>
+        <span><span data-testid="plan">${planName}</span> · <span data-testid="seats">Seats ${seatsUsed()} / ${seatLimit()}</span></span>
+      </header>
+      <h2>Members</h2><ul data-testid="members">${members}</ul>
+      <h2>Pending</h2><ul data-testid="pending">${pending}</ul>
+      <h2>Invite by email</h2>
+      <form data-testid="invite-form">
+        <input data-testid="invite-email" aria-label="Invite by email" placeholder="name@company.com" autocomplete="off">
+        <button type="submit" data-testid="invite-submit">Send invite</button>
+      </form>
+      ${messageHtml()}`;
+  }
+
+  function renderAccept() {
+    const email = params.get('invite') || '';
+    return `
+      <div class="center">
+        <h1>You're invited to ${workspace.name}</h1>
+        <p data-testid="invite-for">${email}</p>
+        <button data-testid="join">Join workspace</button>
+        ${messageHtml()}
+      </div>`;
+  }
+
+  function render() {
+    const root = document.getElementById('root');
+    root.innerHTML = view === 'accept' ? renderAccept() : renderMembers();
+
+    const form = root.querySelector('[data-testid="invite-form"]');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = form.querySelector('input');
+        const button = form.querySelector('button');
+        button.disabled = true;
+        ui.message = await fakeServer(() => sendInvite(input.value));
+        render();
+        if (ui.message.error) document.querySelector('[data-testid="invite-email"]').value = input.value;
+      });
+    }
+    root.querySelectorAll('[data-testid="revoke"]').forEach((b) =>
+      b.addEventListener('click', () => revoke(b.dataset.email)));
+
+    const join = root.querySelector('[data-testid="join"]');
+    if (join) {
+      join.addEventListener('click', async () => {
+        const invite = workspace.pending.find((p) => p.email === params.get('invite'));
+        ui.message = await fakeServer(() => accept(invite));
+        render();
+      });
+    }
+  }
+
+  render();
+</script>
+</body>
+</html>

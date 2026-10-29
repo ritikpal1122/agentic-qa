@@ -50,7 +50,7 @@ Record every source in a table, including the ones you could not open:
 | ID | Kind | Where | Version read | Read? |
 |---|---|---|---|---|
 | S-1 | ticket | PROJ-123 | updated 2026-10-21 16:05 | yes |
-| S-2 | prd | docs/prd/checkout.md | edited 2026-10-18 | yes |
+| S-2 | prd | docs/prd/password-reset.md | edited 2026-10-18 | yes |
 | S-3 | design | figma.com/file/… | — | **no: no access** |
 
 The `Version read` values also go into the header's `Sources:` line, so later sessions can detect changes.
@@ -73,8 +73,8 @@ Write each requirement as **one testable statement**, with its source.
 
 | ID | Requirement | Source | In ACs? |
 |---|---|---|---|
-| R-1 | User can pick a saved contact as the recipient | S-1 AC-1, S-2 §1 | yes |
-| R-2 | Fee is rounded up to the next paisa | S-4 Rules | **no** |
+| R-1 | User can request a reset link from the sign-in page | S-1 AC-1, S-2 §1 | yes |
+| R-2 | Reset link expires 30 minutes after it is sent | S-4 Rules | **no** |
 
 ## Step 4: Check conflicts and gaps
 
@@ -111,7 +111,7 @@ Every conflict, every important gap and every unreadable source becomes an open 
 
 | ID | Question | Why it matters | Blocking? | Suggested default |
 |---|---|---|---|---|
-| Q-1 | Fee is 1% (S-2) or 1.5% (S-1 AC-2)? | Changes every expected total | **yes** | Ask PM; PRD and RFC agree on 1% |
+| Q-1 | Link valid for 30 min (S-2) or 60 min (S-1 AC-2)? | Changes every expiry case | **yes** | Ask PM; PRD and RFC agree on 30 min |
 
 - **Blocking** = the answer changes an expected result. Non-blocking = useful, but tests can be designed without it.
 - Give a suggested default where the sources lean one way, but never treat it as decided.
