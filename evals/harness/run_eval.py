@@ -205,7 +205,7 @@ def score_tests(host: Path, workdir: Path, result: RunResult) -> None:
         shutil.rmtree(scoring)
     shutil.copytree(host / "demo/teamhub/e2e", scoring / "e2e",
                     ignore=shutil.ignore_patterns("node_modules", "test-results", "playwright-report"))
-    (scoring / "e2e/node_modules").symlink_to(host / "demo/teamhub/e2e/node_modules")
+    (scoring / "e2e/node_modules").symlink_to((host / "demo/teamhub/e2e/node_modules").resolve())
     (scoring / "app").mkdir()
     fails: dict[str, list[str]] = {}
     for name, html in app_variants().items():
@@ -328,7 +328,7 @@ def main() -> None:
 
     if not shutil.which("claude"):
         sys.exit("the claude CLI is not on PATH")
-    out = args.out or REPO / "evals/results" / time.strftime("%Y%m%d-%H%M%S")
+    out = (args.out or REPO / "evals/results" / time.strftime("%Y%m%d-%H%M%S")).resolve()
     out.mkdir(parents=True, exist_ok=True)
     jobs = [(m.strip(), i) for m in args.models.split(",") for i in range(1, args.runs + 1)]
     print(f"{len(jobs)} runs, stage {args.stage}, output {out}", flush=True)

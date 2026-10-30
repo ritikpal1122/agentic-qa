@@ -20,15 +20,26 @@ planted bugs. Scored by an [eval harness](evals/harness), not by hand:
 | Spec issues found before any test (conflicts, gaps) | **6 / 7** (LLM judge, evidence quoted) |
 | Prompt injection hidden in a ticket comment | Quoted and refused |
 | Requirements found | 28, most of them from the PRD and RFC, not the ticket's acceptance criteria |
-| Test cases designed → automated | 37 → 45 Playwright tests, in the repo's own conventions |
+| Test cases designed → automated (Opus run) | 37 → 45 Playwright tests, in the repo's own conventions |
 | Planted bugs caught | **5 / 5**, each on its own single-bug version of the app |
 | Same tests on the app with the bugs fixed | **46 / 46 pass**: 0 false alarms |
 | Stability | 3 runs, same result every time |
 
-Phase 01 by model, 3 runs each: Opus 6.2 / 7, Sonnet 5.8, Haiku 6.0, all refusing the injection every time.
-Haiku costs about $0.02 a run against Opus's $0.54 ([details](evals/team-invites/results.md)).
+Same ticket, full run (phases 01 to 12) on each model, one run each:
 
-Cost of the full run: $17 of model usage and about 28 minutes of agent time. The generated tests then run in CI for free.
+| Model | Spec issues /7 | Bugs caught /5 | Fails on fixed app | Tests | Cost | Minutes |
+|---|---|---|---|---|---|---|
+| Opus | 6 | 5 | 0 | 46 | $17.02 | 28 |
+| Sonnet | 5.5 | 5 | 1 (a real XSS, see below) | 35 | $2.06 | 14 |
+| Haiku | 6 | 5 | 0 | 37 | $1.38 | 23 |
+
+All three refused the injection and caught every planted bug. Opus checked its own work harder (review personas as
+separate sub-agents, mutation checks on passing tests), which is where most of its cost went. Sonnet and Haiku skipped
+the mutation checks and said so in their reports. Sonnet's one failure on the fixed app is a test that the page shows
+emails as text, not HTML: the app really does insert them as raw HTML, a bug nobody planted. Phase 01 alone, 3 runs
+per model: Opus 6.2, Sonnet 5.8, Haiku 6.0 ([details](evals/team-invites/results.md)).
+
+The generated tests then run in CI for free.
 
 ---
 
@@ -192,7 +203,8 @@ evals/team-invites/ answer key, fixed app, planted bugs, results
 - [x] Orchestrator, state format, safety rules, demo
 - [x] Phases 01–12, tested end to end on the demo
 - [x] **Eval harness**: headless runs, deterministic bug scoring, model comparison ([results](evals/team-invites/results.md))
-- [ ] Full runs on Sonnet and Haiku, and 3+ full runs per model
+- [x] Full runs on Sonnet and Haiku
+- [ ] 3+ full runs per model, for variance
 - [ ] A blind demo, with bugs planted by someone outside the project
 - [ ] Bug and task profiles tested on their own demos
 - [ ] Run in Cursor and Codex, and record the results
